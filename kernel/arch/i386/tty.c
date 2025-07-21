@@ -42,17 +42,13 @@ void terminal_putchar(char c) {
 	unsigned char uc = c;
 	if (c == '\n') {
 		uc = ' ';
-		terminal_column = 0;
-		terminal_row++;
-		if (++terminal_row == VGA_HEIGHT)
-			terminal_row = 0;
-	} else if (c == '\r') {
-		terminal_column = 0;
-		return;
-	} else if (c < ' ') {
-		return; // Ignore control characters other than newline and carriage return
 	}
 	terminal_putentryat(uc, terminal_color, terminal_column, terminal_row);
+	if (c == '\n') {
+		terminal_column = 0;
+		if (++terminal_row == VGA_HEIGHT)
+			terminal_row = 0;
+	}
 	if (++terminal_column == VGA_WIDTH) {
 		terminal_column = 0;
 		if (++terminal_row == VGA_HEIGHT)
