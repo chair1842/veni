@@ -57,9 +57,8 @@ void kernel_main(void) {
         printf("  Allocated array at: %p\n", numbers);
         for (int i = 0; i < 5; i++) {
             numbers[i] = i * i;
+            printf("  numbers[%d] = %d\n", i, numbers[i]);
         }
-        printf("  Array contents: %d, %d, %d, %d, %d\n",
-               numbers[0], numbers[1], numbers[2], numbers[3], numbers[4]);
         kfree(numbers);
         printf("  Freed array\n");
     }

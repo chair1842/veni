@@ -61,6 +61,39 @@ int printf(const char* restrict format, ...) {
 			if (!print(str, len))
 				return -1;
 			written += len;
+		} else if (*format == 'd') {
+			format++;
+			int num = va_arg(parameters, int);
+			char buffer[32];
+			char* p = &buffer[31];
+			*p = '\0';
+			
+			// Handle negative numbers
+			int is_negative = 0;
+			if (num < 0) {
+				is_negative = 1;
+				num = -num;
+			}
+			
+			// Convert number to string (backwards)
+			do {
+				*--p = '0' + (num % 10);
+				num /= 10;
+			} while (num > 0);
+			
+			// Add minus sign if negative
+			if (is_negative) {
+				*--p = '-';
+			}
+			
+			size_t len = &buffer[31] - p;
+			if (maxrem < len) {
+				// TODO: Set errno to EOVERFLOW.
+				return -1;
+			}
+			if (!print(p, len))
+				return -1;
+			written += len;
 		} else if (*format == 'p') {
 			format++;
 			void* ptr = va_arg(parameters, void*);
