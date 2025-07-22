@@ -32,6 +32,7 @@ $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
 kernel/memory/pmm.o \
 kernel/memory/vmm.o \
+kernel/memory/heap.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \

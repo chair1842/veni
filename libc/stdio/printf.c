@@ -61,6 +61,35 @@ int printf(const char* restrict format, ...) {
 			if (!print(str, len))
 				return -1;
 			written += len;
+		} else if (*format == 'p') {
+			format++;
+			void* ptr = va_arg(parameters, void*);
+			char buffer[10];  // 8 hex digits + "0x" + null terminator
+			buffer[0] = '0';
+			buffer[1] = 'x';
+			for (int i = 9; i >= 2; i--) {
+				unsigned int nibble = ((unsigned int)ptr >> ((9-i)*4)) & 0xF;
+				buffer[i] = nibble < 10 ? '0' + nibble : 'a' + (nibble - 10);
+			}
+			if (!print(buffer, 10))
+				return -1;
+			written += 10;
+		} else if (*format == 'z' && format[1] == 'u') {
+			format += 2;
+			size_t num = va_arg(parameters, size_t);
+			char buffer[21];  // Enough for max size_t value
+			char* p = &buffer[20];
+			*p = '\0';
+			
+			do {
+				*--p = '0' + (num % 10);
+				num /= 10;
+			} while (num > 0);
+			
+			size_t len = &buffer[20] - p;
+			if (!print(p, len))
+				return -1;
+			written += len;
 		} else {
 			format = format_begun_at;
 			size_t len = strlen(format);
