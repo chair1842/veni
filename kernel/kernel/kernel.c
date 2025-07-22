@@ -1,10 +1,9 @@
 #include <stdio.h>
-
 #include <kernel/tty.h>
+#include <kernel/gdt.h>
 
 void kernel_early(void) {
-    // do nothing for now
-    return;
+    gdt_init();
 }
 
 
