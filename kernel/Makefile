@@ -30,6 +30,9 @@ LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
 KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
+kernel/memory/pmm.o \
+kernel/memory/vmm.o \
+kernel/memory/heap.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \
@@ -38,7 +41,7 @@ $(KERNEL_OBJS) \
 $(ARCHDIR)/crtend.o \
 $(ARCHDIR)/crtn.o \
 
-LINK_LIST=\
+LINK_LIST= \
 $(LDFLAGS) \
 $(ARCHDIR)/crti.o \
 $(ARCHDIR)/crtbegin.o \
