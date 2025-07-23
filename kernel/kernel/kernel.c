@@ -10,30 +10,6 @@
 // Define kernel end symbol (this should be provided by the linker)
 extern uint32_t kernel_end;
 
-// Division by zero handler
-static void divide_by_zero_handler(registers_t* regs) {
-    printf("\nDivision by Zero Exception! Details:\n");
-    printf("  Instruction pointer (EIP): 0x%x\n", regs->eip);
-    printf("  Code segment (CS): 0x%x\n", regs->cs);
-    printf("  Flags (EFLAGS): 0x%x\n", regs->eflags);
-    printf("System halted.\n");
-    for(;;); // Halt the system
-}
-
-// Example page fault handler
-static void page_fault_handler(registers_t* regs) {
-    uint32_t faulting_address;
-    asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
-
-    printf("Page Fault! Details:\n");
-    printf("  Address: 0x%x\n", faulting_address);
-    printf("  Error Code: %d\n", regs->err_code);
-    printf("  Present: %d\n", (regs->err_code & 0x1));
-    printf("  Write: %d\n", (regs->err_code & 0x2) >> 1);
-    printf("  User-mode: %d\n", (regs->err_code & 0x4) >> 2);
-    printf("  Instruction pointer (EIP): 0x%x\n", regs->eip);
-}
-
 void kernel_early(void) {
     gdt_init();
     idt_init();
@@ -47,15 +23,15 @@ void kernel_early(void) {
     
     // Initialize kernel heap
     kheap_init();
-    
-    // Register interrupt handlers
-    register_interrupt_handler(0, divide_by_zero_handler);  // Division by zero
-    register_interrupt_handler(14, page_fault_handler);     // Page fault
 }
 
 void kernel_main(void) {
     terminal_initialize();
-    printf("Veni OS - Memory Management Test\n");
+    
+    // Test terminal colors
+    terminal_set_fg_bg(CYAN, BLACK);
+    printf("Veni OS - System Test\n");
+    terminal_set_fg_bg(LIGHT_GREY, BLACK);
     printf("--------------------------------\n");
     
     // Test physical page allocation
@@ -92,8 +68,10 @@ void kernel_main(void) {
         kfree(numbers);
         printf("  Freed array\n");
     }
+    terminal_reset_color();
 
     // Test division by zero interrupt
+    terminal_set_fg_bg(LIGHT_RED, BLACK);
     printf("\nInterrupt Test:\n");
     printf("  Testing division by zero (INT 0)...\n");
     int a = 42;
