@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <kernel/tty.h>
 #include <kernel/gdt.h>
+#include <kernel/idt.h>
 #include <kernel/pmm.h>
 #include <kernel/vmm.h>
 #include <kernel/heap.h>
@@ -9,8 +10,22 @@
 // Define kernel end symbol (this should be provided by the linker)
 extern uint32_t kernel_end;
 
+// Example page fault handler
+static void page_fault_handler(registers_t* regs) {
+    uint32_t faulting_address;
+    asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
+
+    printf("Page Fault! Details:\n");
+    printf("  Address: 0x%x\n", faulting_address);
+    printf("  Error Code: %d\n", regs->err_code);
+    printf("  Present: %d\n", (regs->err_code & 0x1));
+    printf("  Write: %d\n", (regs->err_code & 0x2) >> 1);
+    printf("  User-mode: %d\n", (regs->err_code & 0x4) >> 2);
+}
+
 void kernel_early(void) {
     gdt_init();
+    idt_init();
     
     // Initialize physical memory manager
     // Start after kernel end, use first 16MB for now
@@ -21,6 +36,9 @@ void kernel_early(void) {
     
     // Initialize kernel heap
     kheap_init();
+    
+    // Register page fault handler
+    register_interrupt_handler(14, page_fault_handler);
 }
 
 void kernel_main(void) {
