@@ -10,6 +10,16 @@
 // Define kernel end symbol (this should be provided by the linker)
 extern uint32_t kernel_end;
 
+// Division by zero handler
+static void divide_by_zero_handler(registers_t* regs) {
+    printf("\nDivision by Zero Exception! Details:\n");
+    printf("  Instruction pointer (EIP): 0x%x\n", regs->eip);
+    printf("  Code segment (CS): 0x%x\n", regs->cs);
+    printf("  Flags (EFLAGS): 0x%x\n", regs->eflags);
+    printf("System halted.\n");
+    for(;;); // Halt the system
+}
+
 // Example page fault handler
 static void page_fault_handler(registers_t* regs) {
     uint32_t faulting_address;
@@ -21,6 +31,7 @@ static void page_fault_handler(registers_t* regs) {
     printf("  Present: %d\n", (regs->err_code & 0x1));
     printf("  Write: %d\n", (regs->err_code & 0x2) >> 1);
     printf("  User-mode: %d\n", (regs->err_code & 0x4) >> 2);
+    printf("  Instruction pointer (EIP): 0x%x\n", regs->eip);
 }
 
 void kernel_early(void) {
@@ -37,8 +48,9 @@ void kernel_early(void) {
     // Initialize kernel heap
     kheap_init();
     
-    // Register page fault handler
-    register_interrupt_handler(14, page_fault_handler);
+    // Register interrupt handlers
+    register_interrupt_handler(0, divide_by_zero_handler);  // Division by zero
+    register_interrupt_handler(14, page_fault_handler);     // Page fault
 }
 
 void kernel_main(void) {
@@ -80,4 +92,21 @@ void kernel_main(void) {
         kfree(numbers);
         printf("  Freed array\n");
     }
+
+    // Test division by zero interrupt
+    printf("\nInterrupt Test:\n");
+    printf("  Testing division by zero (INT 0)...\n");
+    int a = 42;
+    int b = 0;
+    printf("  Attempting to divide %d by %d...\n", a, b);
+    __asm__ __volatile__(
+        "movl %0, %%eax\n"
+        "movl %1, %%ebx\n"
+        "divl %%ebx"
+        : /* no outputs */
+        : "r"(a), "r"(b)
+        : "eax", "ebx"
+    );
+    // We shouldn't reach this point due to the interrupt
+    printf("  This line should not be printed!\n");
 }
