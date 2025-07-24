@@ -34,6 +34,7 @@ kernel/memory/pmm.o \
 kernel/memory/vmm.o \
 kernel/memory/heap.o \
 kernel/interrupts/idt.o \
+kernel/interrupts/pic.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \
