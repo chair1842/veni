@@ -33,8 +33,6 @@ kernel/kernel.o \
 kernel/memory/pmm.o \
 kernel/memory/vmm.o \
 kernel/memory/heap.o \
-kernel/interrupts/idt.o \
-kernel/interrupts/pic.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \
@@ -64,10 +62,10 @@ veni.kernel: $(OBJS) $(ARCHDIR)/linker.ld
 $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
 
-.c.o:
+%.o : %.c
 	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
 
-.S.o:
+%.o : %.S
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
 clean:
