@@ -30,8 +30,6 @@ LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
 KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
-kernel/memory/pmm.o \
-kernel/memory/vmm.o \
 kernel/memory/heap.o \
 
 OBJS=\
@@ -62,10 +60,10 @@ veni.kernel: $(OBJS) $(ARCHDIR)/linker.ld
 $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
 
-%.o : %.c
+%.o: %.c
 	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
 
-%.o : %.S
+%.o: %.S
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
 clean:
@@ -82,5 +80,9 @@ install-headers:
 install-kernel: veni.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
 	cp veni.kernel $(DESTDIR)$(BOOTDIR)
+
+print-objs :
+	@echo OBJS: $(OBJS)
+	@ls -l $(OBJS)
 
 -include $(OBJS:.o=.d)

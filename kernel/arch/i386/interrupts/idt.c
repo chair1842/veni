@@ -1,6 +1,7 @@
 #include <kernel/idt.h>
 #include <stdio.h>
 #include <string.h>
+#include <kernel/tty.h>
 
 #define IDT_ENTRIES 256
 
@@ -87,8 +88,10 @@ static const char *exception_messages[] = {
 // Common ISR handler
 void isr_handler(registers_t* regs) {
     if (regs->int_no < 22) {
-        printf("Received interrupt: %s\n", exception_messages[regs->int_no]);
+        terminal_set_fg_bg(LIGHT_RED, BLACK);
+        printf("Received exeption: %s\n", exception_messages[regs->int_no]);
         printf("Error code: %d\n", regs->err_code);
+        terminal_reset_color();
     }
 
     // Call registered handler if available
@@ -96,7 +99,10 @@ void isr_handler(registers_t* regs) {
         isr_t handler = interrupt_handlers[regs->int_no];
         handler(regs);
     }
-    else {}
+    else {
+        // halt
+        __asm__ volatile ("hlt");
+    }
 }
 
 void register_interrupt_handler(uint8_t n, isr_t handler) {
