@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <kernel/tty.h>
 #include <kernel/gdt.h>
+#include <kernel/idt.h>
+#include <kernel/pic.h>
+#include <kernel/isr.h>
+#include <kernel/irq.h>
 #include <kernel/pmm.h>
 #include <kernel/vmm.h>
 #include <kernel/heap.h>
@@ -11,6 +15,13 @@ extern uint32_t kernel_end;
 
 void kernel_early(void) {
     gdt_init();
+    idt_install();
+    isr_install();
+    pic_init();
+    irq_install();
+    
+    // Enable interrupts
+    asm volatile("sti");
     
     // Initialize physical memory manager
     // Start after kernel end, use first 16MB for now
