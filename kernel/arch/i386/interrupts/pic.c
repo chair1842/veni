@@ -1,16 +1,5 @@
 #include <kernel/pic.h>
-
-// Function to send a byte to a port
-static inline void outb(uint16_t port, uint8_t val) {
-    asm volatile ("outb %0, %1" : : "a"(val), "Nd"(port));
-}
-
-// Function to read a byte from a port
-static inline uint8_t inb(uint16_t port) {
-    uint8_t ret;
-    asm volatile ("inb %1, %0" : "=a"(ret) : "Nd"(port));
-    return ret;
-}
+#include <kernel/io.h>
 
 void pic_send_eoi(uint8_t irq) {
     if(irq >= 8)

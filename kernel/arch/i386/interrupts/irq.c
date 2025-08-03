@@ -88,4 +88,9 @@ void irq_install(void) {
 
     // Register keyboard handler
     irq_register_handler(1, keyboard_handler);  // IRQ1 is keyboard
+    
+    // Explicitly unmask (enable) the keyboard interrupt
+    irq_clear_mask(1);
+    
+    printf("Keyboard handler installed\n");  // Debug message
 }
