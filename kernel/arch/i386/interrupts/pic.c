@@ -71,11 +71,15 @@ void pic_remap(uint8_t master_offset, uint8_t slave_offset) {
 }
 
 void pic_init(void) {
+    printf("Initializing PIC\n");  // Debug print
+    
     // Remap PIC vectors so they don't overlap with CPU exceptions
     // Master PIC: 0x20-0x27
     // Slave PIC: 0x28-0x2F
     pic_remap(0x20, 0x28);
+    printf("PIC remapped\n");  // Debug print
 
     // By default, mask all interrupts
     pic_disable();
+    printf("PIC initialized with all interrupts masked\n");  // Debug print
 }

@@ -28,16 +28,20 @@ extern void irq15();
 
 // Simple keyboard handler
 static void keyboard_handler(struct registers* r) {
+    printf("Keyboard handler called\n");  // Debug print
+    
     // Read from keyboard's data port
     uint8_t scancode = inb(0x60);
     printf("Key event! Scancode: 0x%x\n", scancode);
 }
 
 void irq_register_handler(uint8_t irq, isr_handler_t handler) {
+    printf("Registering handler for IRQ %d\n", irq);  // Debug print
     if (irq < 16) {
         irq_handlers[irq] = handler;
         // Unmask (enable) the IRQ line
         irq_clear_mask(irq);
+        printf("Handler registered and IRQ %d unmasked\n", irq);  // Debug print
     }
 }
 
@@ -53,9 +57,14 @@ void irq_handler(struct registers* r) {
     // Get the IRQ number (subtract 32 from the interrupt number)
     uint8_t irq = r->int_no - 32;
 
+    printf("IRQ %d received\n", irq);  // Debug print
+
     // Handle the IRQ if we have a handler
     if (irq < 16 && irq_handlers[irq]) {
+        printf("Calling handler for IRQ %d\n", irq);  // Debug print
         irq_handlers[irq](r);
+    } else {
+        printf("No handler for IRQ %d\n", irq);  // Debug print
     }
 
     // Send EOI to the PIC
