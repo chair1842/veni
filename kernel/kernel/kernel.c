@@ -19,6 +19,7 @@ void kernel_early(void) {
     isr_install();
     pic_init();
     irq_install();
+    terminal_initialize();
     
     // Enable interrupts
     asm volatile("sti");
@@ -35,5 +36,4 @@ void kernel_early(void) {
 }
 
 void kernel_main(void) {
-    terminal_initialize();
 }
