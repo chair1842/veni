@@ -33,7 +33,10 @@ void kernel_early(void) {
     
     // Initialize kernel heap
     kheap_init();
+    printf("Kernel early initialization complete.\n");
+    return;
 }
 
 void kernel_main(void) {
+    printf("we are here!\n");
 }
