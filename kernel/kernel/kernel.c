@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <kernel/tty.h>
-#include <kernel/gdt.h>
 #include <kernel/pmm.h>
 #include <kernel/vmm.h>
 #include <kernel/heap.h>
