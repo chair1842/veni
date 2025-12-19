@@ -29,11 +29,11 @@ _start:
     # Call the global constructors.
     call _init
 
+    cli
+
     call gdt_init
 
-    call idt_init
-
-    call kernel_early
+    call kearly
 
     # Transfer control to the main kernel.
     call kernel_main

@@ -2,25 +2,41 @@
     .code32
 
     .extern exception_handler
+    .extern irq_handler
 
 /* -------------------------
  * ISR stub macros
  * ------------------------- */
 
-    .macro isr_err_stub num
-    .globl isr_stub_\num
+.macro isr_err_stub num
+.globl isr_stub_\num
 isr_stub_\num:
-    add $4, %esp     # Clean up error code from stack
+    pushl $\num        # interrupt number
     call exception_handler
+    add $8, %esp       # pop int_no + error_code
     iret
-    .endm
+.endm
 
-    .macro isr_no_err_stub num
-    .globl isr_stub_\num
+.macro isr_no_err_stub num
+.globl isr_stub_\num
 isr_stub_\num:
+    pushl $0           # fake error code
+    pushl $\num
     call exception_handler
+    add $8, %esp
     iret
-    .endm
+.endm
+
+.macro irq_stub num
+.globl irq_stub_\num
+irq_stub_\num:
+    pushl $0              # fake error code
+    pushl $\num           # vector number
+    call irq_handler
+    add $8, %esp
+    iret
+.endm
+
 
 /* -------------------------
  * ISR stubs 0–31
@@ -59,11 +75,30 @@ isr_no_err_stub 29
 isr_err_stub    30
 isr_no_err_stub 31
 
+// IRQ stubs 32–47
+
+irq_stub 32
+irq_stub 33
+irq_stub 34
+irq_stub 35
+irq_stub 36
+irq_stub 37
+irq_stub 38
+irq_stub 39
+irq_stub 40
+irq_stub 41
+irq_stub 42
+irq_stub 43
+irq_stub 44
+irq_stub 45
+irq_stub 46
+irq_stub 47
+
 /* -------------------------
  * ISR stub table
  * ------------------------- */
 
-    .section .rodata
+    .section .data
     .globl isr_stub_table
 isr_stub_table:
     .long isr_stub_0
@@ -98,3 +133,21 @@ isr_stub_table:
     .long isr_stub_29
     .long isr_stub_30
     .long isr_stub_31
+.globl irq_stub_table
+irq_stub_table:
+    .long irq_stub_32
+    .long irq_stub_33
+    .long irq_stub_34
+    .long irq_stub_35
+    .long irq_stub_36
+    .long irq_stub_37
+    .long irq_stub_38
+    .long irq_stub_39
+    .long irq_stub_40
+    .long irq_stub_41
+    .long irq_stub_42
+    .long irq_stub_43
+    .long irq_stub_44
+    .long irq_stub_45
+    .long irq_stub_46
+    .long irq_stub_47

@@ -22,3 +22,6 @@ __attribute__((aligned(0x10)))
 static idt_entry_t idt[256]; // Create an array of IDT entries; aligned for performance
 
 static idtr_t idtr;
+
+void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags);
+void idt_init();
