@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <kernel/tty.h>
 #include <kernel/timer.h>
-#include <kernel/keyboard.h>
 #include <string.h>
 
 void kernel_main(void) {
