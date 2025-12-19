@@ -16,7 +16,12 @@ void kearly(void) {
     idt_init();
     printf("IDT initialized.\n");
 
+    pit_init(100); // Set PIT to 100Hz
+    printf("PIT initialized to 100Hz.\n");
+
     // Unmask IRQs
+    irq_clear_mask(0); // PIT
+    printf("PIT IRQ unmasked.\n");
     irq_clear_mask(1); // Keyboard
     printf("Keyboard IRQ unmasked.\n");
     printf("IRQs unmasked.\n");

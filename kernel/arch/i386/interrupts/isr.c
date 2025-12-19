@@ -1,4 +1,6 @@
 #include <kernel/tty.h>
+#include "../drivers/pit/pit.h"
+#include "../drivers/keyboard/keyboard.h"
 #include "pic.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,9 +24,11 @@ void irq_handler(uint32_t vector, uint32_t error) {
 
     // Minimal handling only
     switch (irq) {
+        case 0:
+            pit_handler();
+            break;
         case 1:
-            uint8_t scancode = inb(0x60);
-            printf("Keyboard interrupt received. Scancode: %d\n", scancode);
+            keyboard_handler();
             break;
         default:
             printf("Unhandled IRQ: %d\n", irq);
