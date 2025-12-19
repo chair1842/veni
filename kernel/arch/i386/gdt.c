@@ -1,4 +1,4 @@
-#include <kernel/gdt.h>
+#include "gdt.h"
 
 // GDT entries
 static struct gdt_entry gdt[3];
