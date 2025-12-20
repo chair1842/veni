@@ -8,9 +8,7 @@ void kernel_main(void) {
     printf("Veni says hello\n");
     char c;
     while (1) {
-        while((c = keyboard_get_char())) {
-            printf(c == '\r' ? "\n" : "%c", c);
-        }
+        asm volatile ("hlt");
     }
     // never return
 }
