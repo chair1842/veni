@@ -17,10 +17,7 @@ void exception_handler(uint32_t int_no, uint32_t err) {
 void irq_handler(uint32_t vector) {
     uint8_t irq = vector - 32;
 
-    // Acknowledge FIRST
-    pic_send_eoi(irq);
-
-    // Minimal handling only
+        // Minimal handling only
     switch (irq) {
         case 0:
             pit_handler();
@@ -31,4 +28,6 @@ void irq_handler(uint32_t vector) {
             printf("Unhandled IRQ: %d\n", irq);
             break;
     }
+
+    pic_send_eoi(irq);
 }

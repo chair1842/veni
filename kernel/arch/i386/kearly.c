@@ -20,8 +20,10 @@ void kearly(void) {
     printf("PIT initialized to 100Hz.\n");
 
     // Unmask IRQs
-    irq_clear_mask(0); // PIT
-    printf("PIT IRQ unmasked.\n");
+    //irq_clear_mask(0); // PIT
+    //printf("PIT IRQ unmasked.\n");
+    irq_clear_mask(1); // Keyboard
+    printf("Keyboard IRQ unmasked.\n");
     printf("IRQs unmasked.\n");
     
     // Initialize physical memory manager
