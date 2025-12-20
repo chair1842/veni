@@ -14,9 +14,7 @@ void exception_handler(uint32_t int_no, uint32_t err) {
     abort();
 }
 
-void irq_handler(uint32_t vector, uint32_t error) {
-    (void)error;
-
+void irq_handler(uint32_t vector) {
     uint8_t irq = vector - 32;
 
     // Acknowledge FIRST
@@ -28,7 +26,6 @@ void irq_handler(uint32_t vector, uint32_t error) {
             pit_handler();
             break;
         case 1:
-            keyboard_handler();
             break;
         default:
             printf("Unhandled IRQ: %d\n", irq);

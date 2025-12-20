@@ -6,7 +6,6 @@
 void kernel_main(void) {
     terminal_clear();
     printf("Veni says hello\n");
-    char c;
     while (1) {
         asm volatile ("hlt");
     }
