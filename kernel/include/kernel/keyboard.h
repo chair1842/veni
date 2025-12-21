@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-typedef enum KeyCode {
+typedef enum {
     KEY_NONE,
     KEY_A,
     KEY_B,
@@ -56,6 +56,11 @@ typedef enum KeyCode {
     KEY_ENTER,
     KEY_BACKSPACE,
     KEY_TAB,
+} KeyCode;
+
+struct KeyPacket {
+    KeyCode keycode;
+    bool pressed; // false if released
 };
 
 bool keyboard_available();
