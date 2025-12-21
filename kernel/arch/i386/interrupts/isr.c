@@ -23,6 +23,7 @@ void irq_handler(uint32_t vector) {
             pit_handler();
             break;
         case 1:
+            keyboard_handler(); // FUCK FUCK FUCK
             break;
         default:
             printf("Unhandled IRQ: %d\n", irq);

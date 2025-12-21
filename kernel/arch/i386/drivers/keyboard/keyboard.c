@@ -20,17 +20,27 @@ inline char buffer_pop() {
 }
 
 void keyboard_handler() {
-    // Read the scancode from the keyboard data port
-    uint8_t scancode = inb(0x60);
+    while (inb(STATUS_PORT) & 1) {
+        uint8_t sc = inb(DATA_PORT);
 
-    if (scancode & 0x80) return;
+        bool key_released = sc & 0x80;
+        uint8_t code = sc & 0x7F;
 
-    // Convert scancode to ASCII character
-    char ascii = scancode_to_ascii[scancode];
-    if (ascii) {
-        buffer_push(ascii);
+        if (key_released)
+            continue;
+
+        char c = 0;
+        if (code < 128) {
+            c = scancode_to_ascii[code];
+        }
+
+        if (c) {
+            buffer_push(c);
+        }
     }
 }
+
+
 
 bool keyboard_available() {
     return !buffer_empty();
