@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include <kernel/tty.h>
+#include <kernel/serial.h>
 
 #include "vga.h"
 
@@ -71,6 +72,26 @@ void terminal_putchar(char c) {
 				terminal_scroll();
 		}
 	}
+	terminal_setcursorpos(terminal_row, terminal_column);
+}
+
+void terminal_tab(size_t spaces) {
+	for (size_t i = 0; i < spaces; i++) {
+		terminal_putchar(' ');
+	}
+}
+
+void terminal_backspace(void) {
+	if (terminal_column == 0) {
+		if (terminal_row > 0) {
+			terminal_row--;
+			terminal_column = VGA_WIDTH - 1;
+		}
+	} else {
+		terminal_column--;
+	}
+	terminal_putentryat(' ', terminal_color, terminal_column, terminal_row);
+	terminal_setcursorpos(terminal_row, terminal_column);
 }
 
 void terminal_write(const char* data, size_t size) {
@@ -95,4 +116,14 @@ void terminal_clear(void) {
 	}
 	terminal_row = 0;
 	terminal_column = 0;
+	terminal_setcursorpos(terminal_row, terminal_column);
+}
+
+void terminal_setcursorpos(size_t row, size_t column) {
+	uint16_t pos = row * VGA_WIDTH + column;
+
+	outb(0x3D4, 0x0F);
+	outb(0x3D5, (uint8_t) (pos & 0xFF));
+	outb(0x3D4, 0x0E);
+	outb(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
 }

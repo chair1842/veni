@@ -20,7 +20,6 @@ isr_stub_\num:
 .macro isr_no_err_stub num
 .globl isr_stub_\num
 isr_stub_\num:
-    pushl $0           # fake error code
     pushl $\num
     call exception_handler
     add $8, %esp
