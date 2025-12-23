@@ -2,14 +2,24 @@
 #include <kernel/tty.h>
 #include <kernel/timer.h>
 #include <kernel/keyboard.h>
+#include <kernel/kb_keys.h>
 #include <string.h>
 
 void kernel_main(void) {
     terminal_clear();
-    printf("Veni says hello\n");
+    printf("This is the veni typing playground\nYou can erase us\n");
     while (1) {
-        char c = keyboard_getchar();
-        printf("%c", c);
+        struct KeyPacket pkt = keyboard_getkey();
+        char ascii = key_to_ascii(pkt);
+        if (pkt.keycode == KEY_BACKSPACE && pkt.pressed) {
+            terminal_backspace();
+        }
+        if (pkt.keycode == KEY_TAB && pkt.pressed) {
+            printf("    ");
+        }
+        if (pkt.pressed && ascii) {
+            printf("%c", ascii);
+        }
     }
     // never return
 }
