@@ -38,6 +38,8 @@ void kearly(void) {
     // Initialize kernel heap
     kheap_init();
 
+    vfs_list();
+
     __asm__ volatile ("sti"); // Enable interrupts
     printf("Interrupts enabled.\n");
 
