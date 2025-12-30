@@ -9,7 +9,7 @@
 void kernel_main(void) {
     terminal_clear();
 
-    int fd = vfs_create("hello");
+    int fd = vfs_create("hello.txt");
     vfs_write(fd, "hello world", 11);
 
     char buf[12] = {0};
