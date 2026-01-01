@@ -16,7 +16,7 @@ void kernel_main() {
     int fd = vfs_create("hello.txt");
     printf("Created hello.txt with fd %d\n", fd);
     vfs_write(fd, "hello world", 11);
-    printf("Wrote hello world to hello.txt.\n");
+    printf("Wrote hello world to hello.txt.\n\n");
 
     vfs_lseek(fd, 0);
 
@@ -26,11 +26,11 @@ void kernel_main() {
 
     printf(buf);
 
-    printf("\nNext test\n");
+    printf("\n\nNext test\n");
     int fd2 = vfs_create("numbers.txt");
     printf("Created numbers.txt with fd %d\n", fd2);
     vfs_write(fd2, "1234567890", 10);
-    printf("Wrote numbers to numbers.txt.\n");
+    printf("Wrote numbers to numbers.txt.\n\n");
 
     vfs_lseek(fd2, 0);
 
@@ -42,10 +42,12 @@ void kernel_main() {
 
     vfs_lseek(fd, 0);
 
-    printf("\nRe-reading hello.txt:\n");
+    printf("\n\nRe-reading hello.txt:\n");
     char buf2[12] = {0};
     vfs_read(fd, buf2, 11);
     printf(buf2);
+
+    printf("\n\nIt is done\n");
 
     while (1) {} // never return
 }
