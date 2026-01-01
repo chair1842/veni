@@ -1,4 +1,8 @@
 #include "kearly.h"
+#include <kernel/vfs.h>
+#include "../kernel/filesystem/ramfs.h"
+
+static filesystem_t ramfs_fs;
 
 void kearly(void) {
     terminal_initialize();
@@ -41,6 +45,24 @@ void kearly(void) {
 
     vfs_init();
     printf("Virtual Filesystem initialized.\n");
+
+    ramfs_init();
+
+    ramfs_fs = (filesystem_t){
+        .name = "ramfs",
+        .ops = {
+            .create = ramfs_create,
+            .open = ramfs_open,
+            .read = ramfs_read,
+            .write = ramfs_write
+        },
+        .data = NULL
+    };
+
+    vfs_mount(&ramfs_fs);
+    printf("RAMFS mounted as root filesystem.\n");
+
+    io_wait();
 
     __asm__ volatile ("sti"); // Enable interrupts
     printf("Interrupts enabled.\n");

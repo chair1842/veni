@@ -9,11 +9,18 @@
 void kernel_main(void) {
     terminal_clear();
 
+    printf("Testing VFS...\n");
     int fd = vfs_create("hello.txt");
+    printf("Created hello.txt with fd %d\n", fd);
     vfs_write(fd, "hello world", 11);
+    printf("Wrote hello world to hello.txt.\n");
 
+    vfs_lseek(fd, 0);
+
+    // this will work if vfs_read is commented
     char buf[12] = {0};
-    vfs_read(fd, buf, 11);
+    vfs_read(fd, buf, 11); // vfs_read or ramfs_read is darn bugged
+    printf("Read from hello.txt successful.\n");
 
     printf(buf);
 
