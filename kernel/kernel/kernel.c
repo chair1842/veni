@@ -1,3 +1,5 @@
+/* Kernel main entry point and initialization */
+
 #include <stdio.h>
 #include <kernel/tty.h>
 #include <kernel/timer.h>
@@ -6,7 +8,8 @@
 #include <kernel/vfs.h>
 #include <string.h>
 
-void kernel_main(void) {
+// Main kernel entry point
+void kernel_main() {
     terminal_clear();
 
     printf("Testing VFS...\n");

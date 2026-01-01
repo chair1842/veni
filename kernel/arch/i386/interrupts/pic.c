@@ -31,7 +31,7 @@ void pic_remap(int offset1, int offset2) {
 	outb(PIC2_DATA, 0);
 }
 
-void pic_disable(void) {
+void pic_disable() {
     outb(PIC1_DATA, 0xff);
     outb(PIC2_DATA, 0xff);
 }
@@ -73,11 +73,11 @@ static uint16_t __pic_get_irq_reg(int ocw3) {
 }
 
 /* Returns the combined value of the cascaded PICs irq request register */
-uint16_t pic_get_irr(void) {
+uint16_t pic_get_irr() {
     return __pic_get_irq_reg(PIC_READ_IRR);
 }
 
 /* Returns the combined value of the cascaded PICs in-service register */
-uint16_t pic_get_isr(void) {
+uint16_t pic_get_isr() {
     return __pic_get_irq_reg(PIC_READ_ISR);
 }

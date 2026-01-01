@@ -13,9 +13,9 @@ typedef struct {
 
 static page_directory_t* kernel_directory;
 
-static void page_fault_handler(void);
+static void page_fault_handler();
 
-void vmm_init(void) {
+void vmm_init() {
     // Allocate kernel page directory
     kernel_directory = (page_directory_t*)pmm_alloc_page();
     

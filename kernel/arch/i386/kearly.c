@@ -4,7 +4,7 @@
 
 static filesystem_t ramfs_fs;
 
-void kearly(void) {
+void kearly() {
     terminal_initialize();
     printf("Kernel early initialization started.\n");
     serial_init();

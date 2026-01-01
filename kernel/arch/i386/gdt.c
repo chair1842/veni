@@ -20,7 +20,7 @@ static void gdt_set_gate(int32_t num, uint32_t base, uint32_t limit, uint8_t acc
 }
 
 // Initialize GDT
-void gdt_init(void) {
+void gdt_init() {
     // Setup GDT pointer and limit
     gp.limit = (sizeof(struct gdt_entry) * 3) - 1;
     gp.base = (uint32_t)&gdt;

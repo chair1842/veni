@@ -1,7 +1,7 @@
 #pragma once
 #include <stddef.h>
 
-void ramfs_init(void);
+void ramfs_init();
 int ramfs_create(filesystem_t *fs, const char *path);
 int ramfs_open(filesystem_t *fs, const char *path);
 size_t ramfs_read(filesystem_t *fs, int fd, void *buf, size_t size, size_t *offset);

@@ -1,3 +1,5 @@
+/* RAMFS filesystem implementation */
+
 #include <kernel/vfs.h>
 #include <kernel/heap.h>
 #include <string.h>
@@ -17,6 +19,7 @@ typedef struct ramfs_file {
 
 static ramfs_file_t files[RAMFS_MAX_FILES];
 
+// Find a file by name, return index or -1
 static int find_file(const char *name) {
 	for (int i = 0; i < RAMFS_MAX_FILES; i++) {
 		if (files[i].used &&
@@ -27,7 +30,8 @@ static int find_file(const char *name) {
 	return -1;
 }
 
-static int alloc_file(void) {
+// Allocate a new file slot
+static int alloc_file() {
 	for (int i = 0; i < RAMFS_MAX_FILES; i++) {
 		if (!files[i].used) {
 			files[i].used = 1;
@@ -40,7 +44,8 @@ static int alloc_file(void) {
 	return -1;
 }
 
-void ramfs_init(void) {
+// Initialize RAMFS
+void ramfs_init() {
 	for (int i = 0; i < RAMFS_MAX_FILES; i++) {
 		files[i].used = 0;
 	}

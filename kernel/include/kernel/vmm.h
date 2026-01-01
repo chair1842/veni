@@ -15,7 +15,7 @@
 #define PTE_USER    0x4
 
 // Function declarations for Virtual Memory Manager
-void vmm_init(void);
+void vmm_init();
 void map_page(uint32_t virtual_addr, uint32_t physical_addr, uint32_t flags);
 void unmap_page(uint32_t virtual_addr);
 uint32_t get_physical_address(uint32_t virtual_addr);
