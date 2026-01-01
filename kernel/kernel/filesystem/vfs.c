@@ -63,7 +63,6 @@ int vfs_open(const char *path) {
 	filesystem_t *fs = get_fs_for_path(path);
     if (!fs) return -1;
 
-
     int fs_fd = fs->ops.open(fs, path);
     if (fs_fd < 0) return -1;
 

@@ -26,5 +26,26 @@ void kernel_main() {
 
     printf(buf);
 
+    printf("\nNext test\n");
+    int fd2 = vfs_create("numbers.txt");
+    printf("Created numbers.txt with fd %d\n", fd2);
+    vfs_write(fd2, "1234567890", 10);
+    printf("Wrote numbers to numbers.txt.\n");
+
+    vfs_lseek(fd2, 0);
+
+    char numbuf[11] = {0};
+    vfs_read(fd2, numbuf, 10);
+    printf("Read from numbers.txt successful.\n");
+
+    printf(numbuf);
+
+    vfs_lseek(fd, 0);
+
+    printf("\nRe-reading hello.txt:\n");
+    char buf2[12] = {0};
+    vfs_read(fd, buf2, 11);
+    printf(buf2);
+
     while (1) {} // never return
 }
