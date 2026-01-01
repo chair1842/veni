@@ -17,9 +17,8 @@ void kernel_main(void) {
 
     vfs_lseek(fd, 0);
 
-    // this will work if vfs_read is commented
     char buf[12] = {0};
-    vfs_read(fd, buf, 11); // vfs_read or ramfs_read is darn bugged
+    vfs_read(fd, buf, 11);
     printf("Read from hello.txt successful.\n");
 
     printf(buf);
