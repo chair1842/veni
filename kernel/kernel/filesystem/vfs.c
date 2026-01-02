@@ -76,47 +76,91 @@ void vfs_init() {
 	vfs_mount_count = 0;
 }
 
-// Create a new file
+// Create a new file, path must start with '/' and be absolute
 int vfs_create(const char *path) {
-    // Check if file already exists
-    if (vfs_resolve(path)) return -1;
-    printf("VFS: File %s does not exist, proceeding to create\n", path);
+    if (!path || path[0] != '/' || vfs_mount_count == 0) {
+        return -1;
+    }
 
-    if (vfs_mount_count == 0) return -1;
-    vfs_mount_t *mount = &vfs_mounts[0]; // single mount for now
+    // Split path into components
+    char temp[256];
+    strncpy(temp, path, sizeof(temp)-1);
+    temp[sizeof(temp)-1] = '\0';
 
-    // 1. Create the file in the filesystem
+    vfs_mount_t *mount = &vfs_mounts[0];
+    vfs_node_t *current = mount->node; // start at root
+
+    char *token = strtok(temp, "/");
+    char *next_token = NULL;
+    char *prev_token = NULL;
+
+    // Keep last token for the file itself
+    while (token) {
+        next_token = strtok(NULL, "/");
+        if (!next_token) break; // last component = file
+        // Intermediate directories
+        vfs_node_t *child = find_child(current, token);
+
+        if (!child) {
+            // Create directory node
+            child = malloc(sizeof(vfs_node_t));
+            if (!child) return -1;
+            strncpy(child->name, token, sizeof(child->name)-1);
+            child->name[sizeof(child->name)-1] = '\0';
+            child->type = VFS_TYPE_DIR;
+            child->parent = current;
+            child->children = NULL;
+            child->fs = mount->fs;
+            child->next = NULL;
+
+            // Add to parent's children
+            if (!current->children)
+                current->children = child;
+            else {
+                vfs_node_t *last = current->children;
+                while (last->next) last = last->next;
+                last->next = child;
+            }
+        }
+
+        current = child;
+        token = next_token;
+    }
+
+    // Now token = last component = file
+    if (find_child(current, token)) return -1; // file already exists
+
     int fs_fd = mount->fs->ops.create(mount->fs, path);
     if (fs_fd < 0) return -1;
 
-    // 2. Create VFS node
-    vfs_node_t *node = malloc(sizeof(vfs_node_t));
-    if (!node) return -1;
-    strncpy(node->name, path, sizeof(node->name));
-    node->type = VFS_TYPE_FILE;
-    node->fs = mount->fs;
-    node->fs_fd = fs_fd;
-    node->parent = mount->node;
-    node->children = NULL;
-    node->next = NULL;
+    vfs_node_t *file_node = malloc(sizeof(vfs_node_t));
+    if (!file_node) return -1;
 
-    // Add to parent's children
-    if (mount->node->children == NULL) {
-        mount->node->children = node;
-    } else {
-        vfs_node_t *last = mount->node->children;
+    strncpy(file_node->name, token, sizeof(file_node->name)-1);
+    file_node->name[sizeof(file_node->name)-1] = '\0';
+    file_node->type = VFS_TYPE_FILE;
+    file_node->fs = mount->fs;
+    file_node->fs_fd = fs_fd;
+    file_node->parent = current;
+    file_node->children = NULL;
+    file_node->next = NULL;
+
+    // Add file to parent
+    if (!current->children)
+        current->children = file_node;
+    else {
+        vfs_node_t *last = current->children;
         while (last->next) last = last->next;
-        last->next = node;
+        last->next = file_node;
     }
 
-    // 3. Allocate a VFS file descriptor
+    // Allocate VFS FD
     int fd = alloc_fd();
     if (fd < 0) return -1;
+    vfs_files[fd].node = file_node;
 
-    vfs_files[fd].node = node;
     return fd;
 }
-
 
 // Open an existing file
 int vfs_open(const char *path) {
