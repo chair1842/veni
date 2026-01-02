@@ -28,7 +28,7 @@ void kernel_main() {
 
     printf("\n\nNext test\n");
     int fd2 = vfs_create("/num/numbers.txt");
-    printf("Created numbers.txt with fd %d\n", fd2);
+    printf("Created num/numbers.txt with fd %d\n", fd2);
     vfs_write(fd2, "1234567890", 10);
     printf("Wrote numbers to numbers.txt.\n\n");
 
