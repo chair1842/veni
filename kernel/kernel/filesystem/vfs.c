@@ -220,6 +220,8 @@ int vfs_unlink(const char *path) {
 	if (!node) return -1;
 
 	vfs_mount_t *mount = &vfs_mounts[0]; // resolve mount point properly later
+    node->parent->children = NULL; // remove from parent's children list properly later
+    free(node); // free node properly later
 	return mount->fs->ops.unlink(mount->fs, path);
 }
 

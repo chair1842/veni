@@ -36,7 +36,7 @@ void kernel_main() {
 
     char numbuf[11] = {0};
     vfs_read(fd2, numbuf, 10);
-    printf("Read from numbers.txt successful.\n");
+    printf("Read from num/numbers.txt successful.\n");
 
     printf(numbuf);
 
@@ -48,7 +48,7 @@ void kernel_main() {
     printf(buf2);
 
     vfs_unlink("/num/hello.txt");
-    vfs_unlink("/numbers.txt");
+    vfs_unlink("/num/numbers.txt");
     printf("\n\nDeleted hello.txt and numbers.txt\n");
 
     printf("\n\nIt is done\n");
