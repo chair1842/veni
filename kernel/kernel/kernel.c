@@ -27,7 +27,7 @@ void kernel_main() {
     printf(buf);
 
     printf("\n\nNext test\n");
-    int fd2 = vfs_create("/numbers.txt");
+    int fd2 = vfs_create("/num/numbers.txt");
     printf("Created numbers.txt with fd %d\n", fd2);
     vfs_write(fd2, "1234567890", 10);
     printf("Wrote numbers to numbers.txt.\n\n");
@@ -47,7 +47,7 @@ void kernel_main() {
     vfs_read(fd, buf2, 11);
     printf(buf2);
 
-    vfs_unlink("/hello.txt");
+    vfs_unlink("/num/hello.txt");
     vfs_unlink("/numbers.txt");
     printf("\n\nDeleted hello.txt and numbers.txt\n");
 
