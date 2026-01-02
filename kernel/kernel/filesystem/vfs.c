@@ -91,10 +91,25 @@ int vfs_create(const char *path) {
     if (fs_fd < 0) return -1;
     printf("VFS: File %s created in FS with fd %d\n", path, fs_fd);
 
-    // 2. Resolve the node after creation
-    vfs_node_t *node = vfs_resolve(path);
-    if (!node) return -1; // should not happen if create succeeded
-    printf("VFS: Resolved node for %s\n", path);
+    // 2. Create VFS node
+    vfs_node_t *node = malloc(sizeof(vfs_node_t));
+    if (!node) return -1;
+    strncpy(node->name, path, sizeof(node->name));
+    node->type = VFS_TYPE_FILE;
+    node->fs = mount->fs;
+    node->fs_fd = fs_fd;
+    node->parent = mount->node;
+    node->children = NULL;
+    node->next = NULL;
+
+    // Add to parent's children
+    if (mount->node->children == NULL) {
+        mount->node->children = node;
+    } else {
+        vfs_node_t *last = mount->node->children;
+        while (last->next) last = last->next;
+        last->next = node;
+    }
 
     // 3. Allocate a VFS file descriptor
     int fd = alloc_fd();

@@ -52,6 +52,7 @@ void ramfs_init() {
 }
 
 int ramfs_create(vfs_filesystem_t *fs, const char *path) {
+	(void)fs;
 	if (!path || strlen(path) > RAMFS_NAME_MAX - 1) {
 		return -1;
 	}
@@ -69,10 +70,12 @@ int ramfs_create(vfs_filesystem_t *fs, const char *path) {
 }
 
 int ramfs_open(vfs_filesystem_t *fs, const char *path) {
+	(void)fs;
 	return find_file(path);
 }
 
 size_t ramfs_read(vfs_filesystem_t *fs, int fd, void *buf, size_t size, size_t *offset) {
+	(void)fs;
 	if (fd < 0 || fd >= RAMFS_MAX_FILES || !files[fd].used) {
 		return 0;
 	}
@@ -97,6 +100,7 @@ size_t ramfs_read(vfs_filesystem_t *fs, int fd, void *buf, size_t size, size_t *
 }
 
 size_t ramfs_write(vfs_filesystem_t *fs, int fd, const void *buf, size_t size, size_t *offset) {
+	(void)fs;
 	if (fd < 0 || fd >= RAMFS_MAX_FILES || !files[fd].used) {
 		return 0;
 	}
@@ -136,6 +140,7 @@ size_t ramfs_write(vfs_filesystem_t *fs, int fd, const void *buf, size_t size, s
 
 // close file
 int ramfs_close(vfs_filesystem_t *fs, int fd) {
+	(void)fs;
     if (fd < 0 || fd >= RAMFS_MAX_FILES || !files[fd].used) {
 		return -1;
 	}
@@ -144,6 +149,7 @@ int ramfs_close(vfs_filesystem_t *fs, int fd) {
 
 // unlink (delete) a file
 int ramfs_unlink(vfs_filesystem_t *fs, const char *path) {
+	(void)fs;
     int idx = find_file(path);
     if (idx < 0) return -1;
 
