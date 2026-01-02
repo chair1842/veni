@@ -15,9 +15,9 @@ typedef struct vfs_filesystem vfs_filesystem_t;
 typedef struct vfs_file_ops {
     int  (*create)(vfs_filesystem_t *fs, const char *path);
     int  (*open)(vfs_filesystem_t *fs, const char *path);
-    size_t (*read)(vfs_filesystem_t *fs, int fd, void *buf, size_t size, size_t *offset);
-    size_t (*write)(vfs_filesystem_t *fs, int fd, const void *buf, size_t size, size_t *offset);
-    int  (*close)(vfs_filesystem_t *fs, int fd);
+    size_t (*read)(vfs_filesystem_t *fs, void* fd, void *buf, size_t size, size_t *offset);
+    size_t (*write)(vfs_filesystem_t *fs, void *fd, const void *buf, size_t size, size_t *offset);
+    int  (*close)(vfs_filesystem_t *fs, void *fd);
     int  (*unlink)(vfs_filesystem_t *fs, const char *path);
 } vfs_file_ops_t;
 
@@ -38,7 +38,7 @@ typedef struct vfs_node {
     vfs_node_type_t type; // file or directory
     vfs_filesystem_t *fs;
     void *fs_data;          // inode or FS-specific handle
-	int fs_fd;           // file descriptor in the underlying FS
+	void *fs_fd;           // file descriptor in the underlying FS
     struct vfs_node *parent;
     struct vfs_node *children; // linked list for directories
     struct vfs_node *next; // next sibling in the linked list
@@ -63,11 +63,11 @@ void vfs_init();
 // open a file, return VFS fd
 int vfs_open(const char *path);
 // read from a file and return number of bytes read
-size_t vfs_read(int fd, void *buf, size_t size);
+size_t vfs_read(void *fd, void *buf, size_t size);
 // write to a file and return number of bytes written
-size_t vfs_write(int fd, const void *buf, size_t size);
+size_t vfs_write(void *fd, const void *buf, size_t size);
 // close a file
-int vfs_close(int fd);
+int vfs_close(void *fd);
 // delete a file
 int vfs_unlink(const char *path);
 // seek to offset in file, absolute seek only
