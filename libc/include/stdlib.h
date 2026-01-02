@@ -9,8 +9,11 @@ extern "C" {
 #endif
 
 __attribute__((__noreturn__))
+// Abort
 void abort();
+// Allocate dynamic memory
 void *malloc(size_t size);
+// Free dynamic memory
 void free(void *ptr);
 
 #ifdef __cplusplus

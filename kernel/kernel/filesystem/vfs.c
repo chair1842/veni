@@ -7,8 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-// this is the old implementation without nodes + mounts
-// partially converted
+// new implementation!!!
 
 static vfs_file_t vfs_files[VFS_MAX_OPEN];
 

@@ -1,3 +1,4 @@
+/* Dynamic memory allocation implementation */
 #include <stdlib.h>
 
 #if defined(__is_libk)

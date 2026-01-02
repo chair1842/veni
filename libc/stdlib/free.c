@@ -1,3 +1,4 @@
+/* Free allocated memory */
 #include <stdlib.h>
 
 #if defined(__is_libk)

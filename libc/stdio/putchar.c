@@ -1,3 +1,4 @@
+/* Put character to stdout */
 #include <stdio.h>
 
 #if defined(__is_libk)
