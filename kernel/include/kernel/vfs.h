@@ -8,50 +8,52 @@
 #define VFS_MAX_OPEN 64
 #define VFS_MAX_FS 16
 
-typedef struct filesystem filesystem_t;
+// Forward declaration for vfs_filesystem_t
+typedef struct vfs_filesystem vfs_filesystem_t;
 
 // File operations structure
-typedef struct file_ops {
-	int  (*create)(filesystem_t *fs, const char *path);
-	int  (*open)(filesystem_t *fs, const char *path);
-	size_t (*read)(filesystem_t *fs, int fd, void *buf, size_t size, size_t *offset);
-	size_t (*write)(filesystem_t *fs, int fd, const void *buf, size_t size, size_t *offset);
-	int  (*close)(filesystem_t *fs, int fd);
-	int  (*unlink)(filesystem_t *fs, const char *path);
-} file_ops_t;
+typedef struct vfs_file_ops {
+    int  (*create)(vfs_filesystem_t *fs, const char *path);
+    int  (*open)(vfs_filesystem_t *fs, const char *path);
+    size_t (*read)(vfs_filesystem_t *fs, int fd, void *buf, size_t size, size_t *offset);
+    size_t (*write)(vfs_filesystem_t *fs, int fd, const void *buf, size_t size, size_t *offset);
+    int  (*close)(vfs_filesystem_t *fs, int fd);
+    int  (*unlink)(vfs_filesystem_t *fs, const char *path);
+} vfs_file_ops_t;
 
 // VFS filesystem structure
-typedef struct filesystem {
-	const char *name;
-	file_ops_t ops;
-	void *data; // filesystem-specific data (e.g., RAMFS file array)
-} filesystem_t;
+typedef struct vfs_filesystem {
+    const char *name;
+    vfs_file_ops_t ops;
+    void *data; // filesystem-specific data (e.g., RAMFS file array)
+} vfs_filesystem_t;
 
 typedef enum {
-	VFS_TYPE_FILE,
-	VFS_TYPE_DIR
+    VFS_TYPE_FILE,
+    VFS_TYPE_DIR
 } vfs_node_type_t;
 
 typedef struct vfs_node {
-	char name[32];
-	vfs_node_type_t type; // file or directory
-	filesystem_t *fs;
-	void *fs_data;          // inode or FS-specific handle
-	struct vfs_node *parent;
-	struct vfs_node *children; // linked list for directories
-	struct vfs_node *next; // next sibling in the linked list
+    char name[32];
+    vfs_node_type_t type; // file or directory
+    vfs_filesystem_t *fs;
+    void *fs_data;          // inode or FS-specific handle
+	int fs_fd;           // file descriptor in the underlying FS
+    struct vfs_node *parent;
+    struct vfs_node *children; // linked list for directories
+    struct vfs_node *next; // next sibling in the linked list
 } vfs_node_t;
 
 typedef struct vfs_mount {
-	vfs_node_t *node; // must be an existing directory node
-	filesystem_t *fs;
+    vfs_node_t *node; // must be an existing directory node
+    vfs_filesystem_t *fs;
 } vfs_mount_t;
 
 // VFS file structure
 typedef struct vfs_file {
-	vfs_node_t *node;
-	size_t offset;
-	bool used;
+    vfs_node_t *node;
+    size_t offset;
+    bool used;
 } vfs_file_t;
 
 // create a file, return VFS fd
@@ -64,11 +66,16 @@ int vfs_open(const char *path);
 size_t vfs_read(int fd, void *buf, size_t size);
 // write to a file and return number of bytes written
 size_t vfs_write(int fd, const void *buf, size_t size);
+// close a file
+int vfs_close(int fd);
+// delete a file
+int vfs_unlink(const char *path);
 // seek to offset in file, absolute seek only
 int vfs_lseek(int fd, size_t offset);
 
 // mount a filesystem
-int vfs_mount(filesystem_t *fs);
-
+int vfs_mount(vfs_filesystem_t *fs);
+// resolve a path to a vfs_node_t pointer
+vfs_node_t *vfs_resolve(const char *path);
 
 #endif

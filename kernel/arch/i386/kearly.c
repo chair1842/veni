@@ -2,7 +2,7 @@
 #include <kernel/vfs.h>
 #include "../kernel/filesystem/ramfs.h"
 
-static filesystem_t ramfs_fs;
+static vfs_filesystem_t ramfs_fs;
 
 void kearly() {
     terminal_initialize();
@@ -48,13 +48,15 @@ void kearly() {
 
     ramfs_init();
 
-    ramfs_fs = (filesystem_t){
+    ramfs_fs = (vfs_filesystem_t){
         .name = "ramfs",
         .ops = {
             .create = ramfs_create,
             .open = ramfs_open,
             .read = ramfs_read,
-            .write = ramfs_write
+            .write = ramfs_write,
+            .close = ramfs_close,
+            .unlink = ramfs_unlink
         },
         .data = NULL
     };

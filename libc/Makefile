@@ -49,7 +49,12 @@ string/memmove.o \
 string/memset.o \
 string/strlen.o \
 string/strncmp.o \
-string/strncpy.o
+string/strncpy.o \
+string/strtok.o \
+string/strchr.o \
+string/strcmp.o \
+stdlib/malloc.o \
+stdlib/free.o
 
 HOSTEDOBJS=\
 $(ARCH_HOSTEDOBJS) \

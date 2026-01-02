@@ -1,7 +1,7 @@
 /* RAMFS filesystem implementation */
 
 #include <kernel/vfs.h>
-#include <kernel/heap.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -51,7 +51,7 @@ void ramfs_init() {
 	}
 }
 
-int ramfs_create(filesystem_t *fs, const char *path) {
+int ramfs_create(vfs_filesystem_t *fs, const char *path) {
 	if (!path || strlen(path) > RAMFS_NAME_MAX - 1) {
 		return -1;
 	}
@@ -68,11 +68,11 @@ int ramfs_create(filesystem_t *fs, const char *path) {
 	return idx;
 }
 
-int ramfs_open(filesystem_t *fs, const char *path) {
+int ramfs_open(vfs_filesystem_t *fs, const char *path) {
 	return find_file(path);
 }
 
-size_t ramfs_read(filesystem_t *fs, int fd, void *buf, size_t size, size_t *offset) {
+size_t ramfs_read(vfs_filesystem_t *fs, int fd, void *buf, size_t size, size_t *offset) {
 	if (fd < 0 || fd >= RAMFS_MAX_FILES || !files[fd].used) {
 		return 0;
 	}
@@ -96,7 +96,7 @@ size_t ramfs_read(filesystem_t *fs, int fd, void *buf, size_t size, size_t *offs
 	return size;
 }
 
-size_t ramfs_write(filesystem_t *fs, int fd, const void *buf, size_t size, size_t *offset) {
+size_t ramfs_write(vfs_filesystem_t *fs, int fd, const void *buf, size_t size, size_t *offset) {
 	if (fd < 0 || fd >= RAMFS_MAX_FILES || !files[fd].used) {
 		return 0;
 	}
@@ -106,14 +106,14 @@ size_t ramfs_write(filesystem_t *fs, int fd, const void *buf, size_t size, size_
 
     if (needed > f->capacity) {
         size_t newcap = needed;
-        uint8_t *newbuf = kmalloc(newcap);
+        uint8_t *newbuf = malloc(newcap);
         if (!newbuf) {
             return 0;
 		}
 
         if (f->data) {
             memcpy(newbuf, f->data, f->size);
-            kfree(f->data);
+            free(f->data);
         }
 
         f->data = newbuf;
@@ -132,4 +132,22 @@ size_t ramfs_write(filesystem_t *fs, int fd, const void *buf, size_t size, size_
     }
 
     return size;
+}
+
+// close file
+int ramfs_close(vfs_filesystem_t *fs, int fd) {
+    if (fd < 0 || fd >= RAMFS_MAX_FILES || !files[fd].used) {
+		return -1;
+	}
+    return 0; // nothing special to do in RAMFS
+}
+
+// unlink (delete) a file
+int ramfs_unlink(vfs_filesystem_t *fs, const char *path) {
+    int idx = find_file(path);
+    if (idx < 0) return -1;
+
+    if (files[idx].data) free(files[idx].data);
+    files[idx].used = 0;
+    return 0;
 }
