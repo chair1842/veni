@@ -1,4 +1,6 @@
-#pragma once
+/* RAMFS definitions */
+#ifndef KERNEL_FILESYSTEM_RAMFS_H
+#define KERNEL_FILESYSTEM_RAMFS_H
 #include <stddef.h>
 
 void ramfs_init();
@@ -8,3 +10,5 @@ size_t ramfs_read(vfs_filesystem_t *fs, int fd, void *buf, size_t size, size_t *
 size_t ramfs_write(vfs_filesystem_t *fs, int fd, const void *buf, size_t size, size_t *offset);
 int ramfs_close(vfs_filesystem_t *fs, int fd);
 int ramfs_unlink(vfs_filesystem_t *fs, const char *path);
+
+#endif
