@@ -83,13 +83,11 @@ int vfs_create(const char *path) {
     printf("VFS: File %s does not exist, proceeding to create\n", path);
 
     if (vfs_mount_count == 0) return -1;
-    printf("VFS: There is a mount!\n");
     vfs_mount_t *mount = &vfs_mounts[0]; // single mount for now
 
     // 1. Create the file in the filesystem
     int fs_fd = mount->fs->ops.create(mount->fs, path);
     if (fs_fd < 0) return -1;
-    printf("VFS: File %s created in FS with fd %d\n", path, fs_fd);
 
     // 2. Create VFS node
     vfs_node_t *node = malloc(sizeof(vfs_node_t));
@@ -114,7 +112,6 @@ int vfs_create(const char *path) {
     // 3. Allocate a VFS file descriptor
     int fd = alloc_fd();
     if (fd < 0) return -1;
-    printf("VFS: Allocated VFS fd %d for file %s\n", fd, path);
 
     vfs_files[fd].node = node;
     return fd;
