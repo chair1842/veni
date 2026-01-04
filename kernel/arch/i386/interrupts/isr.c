@@ -8,6 +8,8 @@
 __attribute__((noreturn))
 void exception_handler(uint32_t int_no, uint32_t err);
 void exception_handler(uint32_t int_no, uint32_t err) {
+    (void)int_no;
+    (void)err;
     terminal_clear();
     terminal_fsetcolor(12, 0);
     printf("An exception has occured.\nPlease reboot the system.\n");

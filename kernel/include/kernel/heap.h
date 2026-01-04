@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 // Initialize the kernel heap
-void kheap_init(void);
+void kheap_init();
 
 // Allocate memory from kernel heap
 void* kmalloc(size_t size);

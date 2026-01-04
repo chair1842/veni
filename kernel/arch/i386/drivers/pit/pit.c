@@ -20,6 +20,6 @@ void pit_init(uint32_t frequency) {
 }
 
 /* Returns the current tick count */
-uint32_t get_ticks(void) {
+uint32_t get_ticks() {
     return tick_count;
 }

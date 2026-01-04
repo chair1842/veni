@@ -1,9 +1,12 @@
+/* Formatted output function */
+
 #include <limits.h>
 #include <stdbool.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
+// Print a string to stdout
 static bool print(const char* data, size_t length) {
 	const unsigned char* bytes = (const unsigned char*) data;
 	for (size_t i = 0; i < length; i++)
@@ -12,6 +15,7 @@ static bool print(const char* data, size_t length) {
 	return true;
 }
 
+// Print formatted string to stdout
 int printf(const char* restrict format, ...) {
 	va_list parameters;
 	va_start(parameters, format);

@@ -8,6 +8,8 @@
 #include "interrupts/idt.h"
 #include "interrupts/pic.h"
 #include "drivers/pit/pit.h"
+#include <kernel/vfs.h>
+#include "../../kernel/filesystem/ramfs.h"
 
 extern uint32_t kernel_end;
 

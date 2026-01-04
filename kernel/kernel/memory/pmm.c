@@ -18,7 +18,7 @@ void pmm_init(uint32_t start, uint32_t size) {
     }
 }
 
-void* pmm_alloc_page(void) {
+void* pmm_alloc_page() {
     if (used_pages >= total_pages) {
         return NULL;  // Out of memory
     }
@@ -48,6 +48,6 @@ void pmm_free_page(void* page) {
     }
 }
 
-size_t pmm_get_free_pages(void) {
+size_t pmm_get_free_pages() {
     return total_pages - used_pages;
 }

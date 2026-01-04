@@ -13,7 +13,7 @@ EXEC_PREFIX?=$(PREFIX)
 BOOTDIR?=$(EXEC_PREFIX)/boot
 INCLUDEDIR?=$(PREFIX)/include
 
-CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra -fstack-protector
+CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra
 CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude
 LDFLAGS:=$(LDFLAGS)
 LIBS:=$(LIBS) -nostdlib -lk -lgcc
@@ -33,7 +33,9 @@ kernel/kernel.o \
 kernel/memory/pmm.o \
 kernel/memory/vmm.o \
 kernel/memory/heap.o \
-kernel/kb_keys.o
+kernel/kb_keys.o \
+kernel/filesystem/vfs.o \
+kernel/filesystem/ramfs.o
 
 OBJS=\
 $(ARCHDIR)/crti.o \

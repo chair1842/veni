@@ -42,7 +42,7 @@ static void* sbrk(size_t size) {
     return (void*)old_break;
 }
 
-void kheap_init(void) {
+void kheap_init() {
     // Create initial heap block
     heap_start = sbrk(PAGE_SIZE);
     if (!heap_start) {

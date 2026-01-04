@@ -39,6 +39,6 @@ struct gdt_ptr {
 } __attribute__((packed));
 
 // Function declarations
-void gdt_init(void);
+void gdt_init();
 
 #endif
