@@ -56,12 +56,15 @@ void kearly() {
             .read = ramfs_read,
             .write = ramfs_write,
             .close = ramfs_close,
-            .unlink = ramfs_unlink
+            .unlink = ramfs_unlink,
+            .mkdir = ramfs_mkdir,
+            .rmdir = ramfs_rmdir,
+            .stat = ramfs_stat
         },
         .data = NULL
     };
 
-    vfs_mount(&ramfs_fs);
+    vfs_mount(&ramfs_fs, "/");
     printf("RAMFS mounted as root filesystem.\n");
 
     io_wait();

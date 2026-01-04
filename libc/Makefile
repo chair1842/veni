@@ -54,7 +54,8 @@ string/strtok.o \
 string/strchr.o \
 string/strcmp.o \
 stdlib/malloc.o \
-stdlib/free.o
+stdlib/free.o \
+string/strrchr.o
 
 HOSTEDOBJS=\
 $(ARCH_HOSTEDOBJS) \

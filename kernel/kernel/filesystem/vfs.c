@@ -26,17 +26,48 @@ static vfs_node_t *find_child(vfs_node_t *parent, const char *name) {
     return NULL;
 }
 
+// Helper: find the mount with the longest path prefix
+static vfs_mount_t *find_mount(const char *path) {
+    vfs_mount_t *best_mount = NULL;
+    size_t best_len = 0;
+
+    for (int i = 0; i < vfs_mount_count; i++) {
+        vfs_mount_t *mount = &vfs_mounts[i];
+        size_t len = strlen(mount->mount_path);
+        if (len > best_len && strncmp(path, mount->mount_path, len) == 0) {
+            // Special case for root mount
+            if (strcmp(mount->mount_path, "/") == 0 && path[0] == '/') {
+                best_mount = mount;
+                best_len = len;
+            } else if (path[len] == '/' || path[len] == '\0') {
+                best_mount = mount;
+                best_len = len;
+            }
+        }
+    }
+    return best_mount;
+}
+
 // Resolve a path like "/dir/sub/file"
 vfs_node_t *vfs_resolve(const char *path) {
     if (!path || path[0] != '/' || vfs_mount_count == 0) return NULL;
 
-    // Start from root of first mount
-    vfs_node_t *node = vfs_mounts[0].node;
+    // Find the best mount
+    vfs_mount_t *mount = find_mount(path);
+    if (!mount) return NULL;
+
+    vfs_node_t *node = mount->node;
     if (!node) return NULL;
 
-    // Duplicate path for strtok
+    // Get the remaining path after the mount point
+    const char *remaining = path + strlen(mount->mount_path);
+    if (*remaining == '/') remaining++; // skip leading /
+
+    if (*remaining == '\0') return node; // exactly the mount point
+
+    // Duplicate remaining path for strtok
     char temp[256];
-    strncpy(temp, path, sizeof(temp));
+    strncpy(temp, remaining, sizeof(temp));
     temp[sizeof(temp) - 1] = '\0';
 
     char *token = strtok(temp, "/");
@@ -82,17 +113,24 @@ int vfs_create(const char *path) {
         return -1;
     }
 
+    // Find the mount
+    vfs_mount_t *mount = find_mount(path);
+    if (!mount) return -1;
+
+    // Get relative path
+    const char *rel_path = path + strlen(mount->mount_path);
+    if (*rel_path == '/') rel_path++;
+
     // Split path into components
     char temp[256];
-    strncpy(temp, path, sizeof(temp)-1);
+    strncpy(temp, rel_path, sizeof(temp)-1);
     temp[sizeof(temp)-1] = '\0';
 
-    vfs_mount_t *mount = &vfs_mounts[0];
     vfs_node_t *current = mount->node; // start at root
 
+    char current_path[256] = "";
     char *token = strtok(temp, "/");
     char *next_token = NULL;
-    char *prev_token = NULL;
 
     // Keep last token for the file itself
     while (token) {
@@ -102,6 +140,25 @@ int vfs_create(const char *path) {
         vfs_node_t *child = find_child(current, token);
 
         if (!child) {
+            // Build path for mkdir
+            char mkdir_path[256];
+            size_t pos = 0;
+            if (strlen(current_path) > 0) {
+                strcpy(mkdir_path, current_path);
+                pos = strlen(mkdir_path);
+                if (pos + 1 < sizeof(mkdir_path)) {
+                    mkdir_path[pos] = '/';
+                    mkdir_path[pos + 1] = '\0';
+                    pos++;
+                }
+            }
+            size_t tlen = strlen(token);
+            if (pos + tlen < sizeof(mkdir_path)) {
+                memcpy(mkdir_path + pos, token, tlen + 1);
+            }
+            // Call fs mkdir
+            mount->fs->ops.mkdir(mount->fs, mkdir_path);
+
             // Create directory node
             child = malloc(sizeof(vfs_node_t));
             if (!child) return -1;
@@ -124,14 +181,26 @@ int vfs_create(const char *path) {
         }
 
         current = child;
+        // Update current_path
+        size_t len = strlen(current_path);
+        if (len > 0 && len + 1 < sizeof(current_path)) {
+            current_path[len] = '/';
+            current_path[len + 1] = '\0';
+        }
+        len = strlen(current_path);
+        size_t tok_len = strlen(token);
+        if (len + tok_len < sizeof(current_path)) {
+            memcpy(current_path + len, token, tok_len + 1);
+        }
         token = next_token;
     }
 
     // Now token = last component = file
     if (find_child(current, token)) return -1; // file already exists
 
-    int fs_fd = mount->fs->ops.create(mount->fs, path);
-    if (fs_fd < 0) return -1;
+    int fs_fd_int = mount->fs->ops.create(mount->fs, rel_path);
+    if (fs_fd_int < 0) return -1;
+    void *fs_fd = (void*)(uintptr_t)fs_fd_int;
 
     vfs_node_t *file_node = malloc(sizeof(vfs_node_t));
     if (!file_node) return -1;
@@ -219,14 +288,85 @@ int vfs_unlink(const char *path) {
 	vfs_node_t *node = vfs_resolve(path);
 	if (!node) return -1;
 
-	vfs_mount_t *mount = &vfs_mounts[0]; // resolve mount point properly later
-    node->parent->children = NULL; // remove from parent's children list properly later
-    free(node); // free node properly later
-	return mount->fs->ops.unlink(mount->fs, path);
+	vfs_mount_t *mount = find_mount(path);
+	if (!mount) return -1;
+
+	const char *rel_path = path + strlen(mount->mount_path);
+	if (*rel_path == '/') rel_path++;
+
+    // TODO: remove from VFS tree
+	return mount->fs->ops.unlink(mount->fs, rel_path);
+}
+
+int vfs_mkdir(const char *path) {
+    if (!path || path[0] != '/' || vfs_mount_count == 0) {
+        return -1;
+    }
+
+    vfs_mount_t *mount = find_mount(path);
+    if (!mount) return -1;
+
+    const char *rel_path = path + strlen(mount->mount_path);
+    if (*rel_path == '/') rel_path++;
+
+    return mount->fs->ops.mkdir(mount->fs, rel_path);
+}
+
+int vfs_rmdir(const char *path) {
+    if (!path || path[0] != '/' || vfs_mount_count == 0) {
+        return -1;
+    }
+
+    vfs_mount_t *mount = find_mount(path);
+    if (!mount) return -1;
+
+    const char *rel_path = path + strlen(mount->mount_path);
+    if (*rel_path == '/') rel_path++;
+
+    return mount->fs->ops.rmdir(mount->fs, rel_path);
+}
+
+int vfs_stat(const char *path, vfs_stat_t *st) {
+    if (!path || path[0] != '/' || vfs_mount_count == 0) {
+        return -1;
+    }
+
+    vfs_mount_t *mount = find_mount(path);
+    if (!mount) return -1;
+
+    const char *rel_path = path + strlen(mount->mount_path);
+    if (*rel_path == '/') rel_path++;
+
+    return mount->fs->ops.stat(mount->fs, rel_path, st);
+}
+
+int vfs_unmount(const char *path) {
+    vfs_mount_t *mount = find_mount(path);
+    if (!mount || strcmp(mount->mount_path, path) != 0) return -1;
+
+    // Find the index
+    int idx = -1;
+    for (int i = 0; i < vfs_mount_count; i++) {
+        if (&vfs_mounts[i] == mount) {
+            idx = i;
+            break;
+        }
+    }
+    if (idx == -1) return -1;
+
+    // Free the root node
+    free(mount->node);
+
+    // Shift remaining mounts
+    for (int i = idx; i < vfs_mount_count - 1; i++) {
+        vfs_mounts[i] = vfs_mounts[i + 1];
+    }
+    vfs_mount_count--;
+    return 0;
 }
 
 // Mount a filesystem
-int vfs_mount(vfs_filesystem_t *fs) {
+int vfs_mount(vfs_filesystem_t *fs, const char *path) {
     if (vfs_mount_count >= VFS_MAX_FS) return -1;
 
     // Allocate root node for mount
@@ -241,6 +381,8 @@ int vfs_mount(vfs_filesystem_t *fs) {
     root->children = NULL;
     root->next = NULL;
 
+    strncpy(vfs_mounts[vfs_mount_count].mount_path, path, sizeof(vfs_mounts[vfs_mount_count].mount_path) - 1);
+    vfs_mounts[vfs_mount_count].mount_path[sizeof(vfs_mounts[vfs_mount_count].mount_path) - 1] = '\0';
     vfs_mounts[vfs_mount_count].fs = fs;
     vfs_mounts[vfs_mount_count].node = root;
     vfs_mount_count++;
