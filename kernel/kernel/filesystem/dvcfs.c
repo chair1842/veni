@@ -104,6 +104,50 @@ void dvcfs_init() {
     dvcfs_regdvc("random", &random_ops, NULL);
 }
 
+// Create VFS nodes for registered devices under the given root
+void dvcfs_create_nodes(vfs_node_t *root) {
+    if (!root) return;
+
+    for (int i = 0; i < DVCFS_MAX_DEVICES; i++) {
+        if (devices[i].used) {
+            // Check if a node with this name already exists
+            int exists = 0;
+            vfs_node_t *child = root->children;
+            while (child) {
+                if (strcmp(child->name, devices[i].name) == 0) {
+                    exists = 1;
+                    break;
+                }
+                child = child->next;
+            }
+            if (exists) continue; // Skip if already exists
+
+            // Create new node
+            vfs_node_t *node = malloc(sizeof(vfs_node_t));
+            if (node) {
+                strncpy(node->name, devices[i].name, sizeof(node->name) - 1);
+                node->name[sizeof(node->name) - 1] = '\0';
+                node->type = VFS_TYPE_FILE;
+                node->fs = root->fs; // same fs
+                node->fs_data = NULL;
+                node->fs_fd = (void*)(uintptr_t)i; // device index
+                node->parent = root;
+                node->children = NULL;
+                node->next = NULL;
+
+                // Append to the end of the children list
+                if (!root->children) {
+                    root->children = node;
+                } else {
+                    vfs_node_t *last = root->children;
+                    while (last->next) last = last->next;
+                    last->next = node;
+                }
+            }
+        }
+    }
+}
+
 // Register a device
 int dvcfs_regdvc(const char *dvc_name, vfs_file_ops_t *ops, void *data) {
     if (!dvc_name || !ops) return -1;
@@ -119,6 +163,18 @@ int dvcfs_regdvc(const char *dvc_name, vfs_file_ops_t *ops, void *data) {
         }
     }
     return -1; // no space
+}
+
+int dvcfs_unregdvc(const char *dvc_name) {
+    if (!dvc_name) return -1;
+
+    for (int i = 0; i < DVCFS_MAX_DEVICES; i++) {
+        if (devices[i].used && strcmp(devices[i].name, dvc_name) == 0) {
+            devices[i].used = 0;
+            return 0;
+        }
+    }
+    return -1; // not found
 }
 
 // Find device by name

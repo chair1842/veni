@@ -11,6 +11,10 @@ DVCF means Device File
 void dvcfs_init();
 // register device
 int dvcfs_regdvc(const char *dvc_name, vfs_file_ops_t *ops, void *data);
+// unregister device
+int dvcfs_unregdvc(const char *dvc_name);
+// create VFS nodes for registered devices
+void dvcfs_create_nodes(vfs_node_t *root);
 
 // device file operations
 
