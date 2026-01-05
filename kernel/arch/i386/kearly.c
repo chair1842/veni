@@ -124,6 +124,21 @@ void kearly() {
             zero_node->next = NULL;
             if (null_node) null_node->next = zero_node;
         }
+
+        // random device
+        vfs_node_t *random_node = malloc(sizeof(vfs_node_t));
+        if (random_node) {
+            strncpy(random_node->name, "random", sizeof(random_node->name) - 1);
+            random_node->name[sizeof(random_node->name) - 1] = '\0';
+            random_node->type = VFS_TYPE_FILE;
+            random_node->fs = &dvcfs_fs;
+            random_node->fs_data = NULL;
+            random_node->fs_fd = (void*)2; // device index
+            random_node->parent = dev_root;
+            random_node->children = NULL;
+            random_node->next = NULL;
+            if (zero_node) zero_node->next = random_node;
+        }
     }
 
     io_wait();

@@ -63,6 +63,35 @@ static vfs_file_ops_t zero_ops = {
     .close = zero_close
 };
 
+// /dev/random operations (simple pseudo-random)
+static unsigned int random_seed = 12345;
+
+size_t random_read(vfs_filesystem_t *fs, void *data, void *buf, size_t size, size_t *offset) {
+    (void)fs; (void)data; (void)offset;
+    unsigned char *bytes = (unsigned char *)buf;
+    for (size_t i = 0; i < size; i++) {
+        random_seed = random_seed * 1103515245 + 12345;
+        bytes[i] = (unsigned char)(random_seed >> 16);
+    }
+    return size;
+}
+
+size_t random_write(vfs_filesystem_t *fs, void *data, const void *buf, size_t size, size_t *offset) {
+    (void)fs; (void)data; (void)buf; (void)offset;
+    return size; // pretend to write
+}
+
+int random_close(vfs_filesystem_t *fs, void *data) {
+    (void)fs; (void)data;
+    return 0;
+}
+
+static vfs_file_ops_t random_ops = {
+    .read = random_read,
+    .write = random_write,
+    .close = random_close
+};
+
 // Initialize DVCFS
 void dvcfs_init() {
     for (int i = 0; i < DVCFS_MAX_DEVICES; i++) {
@@ -72,6 +101,7 @@ void dvcfs_init() {
     // Register standard devices
     dvcfs_regdvc("null", &null_ops, NULL);
     dvcfs_regdvc("zero", &zero_ops, NULL);
+    dvcfs_regdvc("random", &random_ops, NULL);
 }
 
 // Register a device

@@ -78,12 +78,17 @@ void kernel_main() {
     if (fd_zero >= 0) {
         char zerobuf[10] = {0};
         size_t read_zero = vfs_read(fd_zero, zerobuf, 10);
-        printf("Read %d bytes from /dev/zero: ", read_zero);
-        for (int i = 0; i < 10; i++) {
-            printf("%02x ", (unsigned char)zerobuf[i]);
-        }
-        printf("\n");
+        printf("Read %d bytes from /dev/zero\n", read_zero);
         vfs_close(fd_zero);
+    }
+
+    int fd_random = vfs_open("/dev/random");
+    printf("Opened /dev/random with fd %d\n", fd_random);
+    if (fd_random >= 0) {
+        char randbuf[10] = {0};
+        size_t read_random = vfs_read(fd_random, randbuf, 10);
+        printf("Read %d bytes from /dev/random\n", read_random);
+        vfs_close(fd_random);
     }
 
     printf("\n\nIt is done\n");
