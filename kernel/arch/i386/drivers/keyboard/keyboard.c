@@ -142,3 +142,28 @@ struct KeyPacket keyboard_readkey() {
     }
     return buffer_pop();
 }
+
+size_t kbd_read(vfs_filesystem_t *fs, void *data, void *buf, size_t size, size_t *offset) {
+    (void)fs;
+    (void)offset;
+    (void)data;
+    (void)size;
+
+    if (size < sizeof(struct KeyPacket)) {
+        return 0; // or error later
+    }
+
+    struct KeyPacket pkt = keyboard_getkey(); // BLOCKS
+    memcpy(buf, &pkt, sizeof(pkt));
+    return sizeof(pkt);
+}
+
+size_t kbd_write(vfs_filesystem_t *fs, void *data, const void *buf, size_t size, size_t *offset) {
+    (void)fs; (void)data; (void)buf; (void)offset;
+    return 0; // deny write
+}
+
+int kbd_close(vfs_filesystem_t *fs, void *data) {
+    (void)fs; (void)data;
+    return 0;
+}

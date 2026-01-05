@@ -10,6 +10,11 @@
 #include "drivers/pit/pit.h"
 #include <kernel/vfs.h>
 #include "../../kernel/filesystem/ramfs.h"
+#include <kernel/vfs.h>
+#include "../../kernel/filesystem/dvcfs.h"
+#include "drivers/keyboard/keyboard.h"
+#include <stdlib.h>
+#include <string.h>
 
 extern uint32_t kernel_end;
 

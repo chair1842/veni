@@ -1,12 +1,13 @@
 #include "kearly.h"
-#include <kernel/vfs.h>
-#include "../kernel/filesystem/ramfs.h"
-#include "../kernel/filesystem/dvcfs.h"
-#include <stdlib.h>
-#include <string.h>
 
 static vfs_filesystem_t ramfs_fs;
 static vfs_filesystem_t dvcfs_fs;
+
+static vfs_file_ops_t kbd_ops = {
+    .read = kbd_read,
+    .write = kbd_write,
+    .close = kbd_close
+};
 
 void kearly() {
     terminal_initialize();
@@ -89,56 +90,16 @@ void kearly() {
         .data = NULL
     };
 
-    vfs_mount(&dvcfs_fs, "/dev");
-    printf("DVCFS mounted at /dev.\n");
+    vfs_mount(&dvcfs_fs, "/veni/dvcf");
+    printf("DVCFS mounted at /veni/dvcf.\n");
+
+    dvcfs_regdvc("kbd0", &kbd_ops, NULL);
+    printf("Keyboard device registered in DVCFS.\n");
 
     // Create device nodes
-    vfs_node_t *dev_root = vfs_resolve("/dev");
+    vfs_node_t *dev_root = vfs_resolve("/veni/dvcf");
     if (dev_root) {
-        // null device
-        vfs_node_t *null_node = malloc(sizeof(vfs_node_t));
-        if (null_node) {
-            strncpy(null_node->name, "null", sizeof(null_node->name) - 1);
-            null_node->name[sizeof(null_node->name) - 1] = '\0';
-            null_node->type = VFS_TYPE_FILE;
-            null_node->fs = &dvcfs_fs;
-            null_node->fs_data = NULL;
-            null_node->fs_fd = (void*)0; // device index
-            null_node->parent = dev_root;
-            null_node->children = NULL;
-            null_node->next = NULL;
-            dev_root->children = null_node;
-        }
-
-        // zero device
-        vfs_node_t *zero_node = malloc(sizeof(vfs_node_t));
-        if (zero_node) {
-            strncpy(zero_node->name, "zero", sizeof(zero_node->name) - 1);
-            zero_node->name[sizeof(zero_node->name) - 1] = '\0';
-            zero_node->type = VFS_TYPE_FILE;
-            zero_node->fs = &dvcfs_fs;
-            zero_node->fs_data = NULL;
-            zero_node->fs_fd = (void*)1; // device index
-            zero_node->parent = dev_root;
-            zero_node->children = NULL;
-            zero_node->next = NULL;
-            if (null_node) null_node->next = zero_node;
-        }
-
-        // random device
-        vfs_node_t *random_node = malloc(sizeof(vfs_node_t));
-        if (random_node) {
-            strncpy(random_node->name, "random", sizeof(random_node->name) - 1);
-            random_node->name[sizeof(random_node->name) - 1] = '\0';
-            random_node->type = VFS_TYPE_FILE;
-            random_node->fs = &dvcfs_fs;
-            random_node->fs_data = NULL;
-            random_node->fs_fd = (void*)2; // device index
-            random_node->parent = dev_root;
-            random_node->children = NULL;
-            random_node->next = NULL;
-            if (zero_node) zero_node->next = random_node;
-        }
+        dvcfs_create_nodes(dev_root);
     }
 
     io_wait();
