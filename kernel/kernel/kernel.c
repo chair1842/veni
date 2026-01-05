@@ -60,6 +60,32 @@ void kernel_main() {
     vfs_unlink("/home/num/numbers.txt");
     printf("\n\nDeleted /home/hello.txt and /home/num/numbers.txt\n");
 
+    // Test DVCFS
+    printf("\n\nTesting DVCFS...\n");
+    int fd_null = vfs_open("/dev/null");
+    printf("Opened /dev/null with fd %d\n", fd_null);
+    if (fd_null >= 0) {
+        char nullbuf[10] = {0};
+        size_t read_null = vfs_read(fd_null, nullbuf, 10);
+        printf("Read %d bytes from /dev/null\n", read_null);
+        size_t write_null = vfs_write(fd_null, "test", 4);
+        printf("Wrote %d bytes to /dev/null\n", write_null);
+        vfs_close(fd_null);
+    }
+
+    int fd_zero = vfs_open("/dev/zero");
+    printf("Opened /dev/zero with fd %d\n", fd_zero);
+    if (fd_zero >= 0) {
+        char zerobuf[10] = {0};
+        size_t read_zero = vfs_read(fd_zero, zerobuf, 10);
+        printf("Read %d bytes from /dev/zero: ", read_zero);
+        for (int i = 0; i < 10; i++) {
+            printf("%02x ", (unsigned char)zerobuf[i]);
+        }
+        printf("\n");
+        vfs_close(fd_zero);
+    }
+
     printf("\n\nIt is done\n");
 
     while (1) {} // never return

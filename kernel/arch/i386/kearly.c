@@ -1,8 +1,12 @@
 #include "kearly.h"
 #include <kernel/vfs.h>
 #include "../kernel/filesystem/ramfs.h"
+#include "../kernel/filesystem/dvcfs.h"
+#include <stdlib.h>
+#include <string.h>
 
 static vfs_filesystem_t ramfs_fs;
+static vfs_filesystem_t dvcfs_fs;
 
 void kearly() {
     terminal_initialize();
@@ -66,6 +70,61 @@ void kearly() {
 
     vfs_mount(&ramfs_fs, "/");
     printf("RAMFS mounted as root filesystem.\n");
+
+    dvcfs_init();
+
+    dvcfs_fs = (vfs_filesystem_t){
+        .name = "dvcfs",
+        .ops = {
+            .create = dvcfs_create,
+            .open = dvcfs_open,
+            .read = dvcfs_read,
+            .write = dvcfs_write,
+            .close = dvcfs_close,
+            .unlink = dvcfs_unlink,
+            .mkdir = dvcfs_mkdir,
+            .rmdir = dvcfs_rmdir,
+            .stat = dvcfs_stat
+        },
+        .data = NULL
+    };
+
+    vfs_mount(&dvcfs_fs, "/dev");
+    printf("DVCFS mounted at /dev.\n");
+
+    // Create device nodes
+    vfs_node_t *dev_root = vfs_resolve("/dev");
+    if (dev_root) {
+        // null device
+        vfs_node_t *null_node = malloc(sizeof(vfs_node_t));
+        if (null_node) {
+            strncpy(null_node->name, "null", sizeof(null_node->name) - 1);
+            null_node->name[sizeof(null_node->name) - 1] = '\0';
+            null_node->type = VFS_TYPE_FILE;
+            null_node->fs = &dvcfs_fs;
+            null_node->fs_data = NULL;
+            null_node->fs_fd = (void*)0; // device index
+            null_node->parent = dev_root;
+            null_node->children = NULL;
+            null_node->next = NULL;
+            dev_root->children = null_node;
+        }
+
+        // zero device
+        vfs_node_t *zero_node = malloc(sizeof(vfs_node_t));
+        if (zero_node) {
+            strncpy(zero_node->name, "zero", sizeof(zero_node->name) - 1);
+            zero_node->name[sizeof(zero_node->name) - 1] = '\0';
+            zero_node->type = VFS_TYPE_FILE;
+            zero_node->fs = &dvcfs_fs;
+            zero_node->fs_data = NULL;
+            zero_node->fs_fd = (void*)1; // device index
+            zero_node->parent = dev_root;
+            zero_node->children = NULL;
+            zero_node->next = NULL;
+            if (null_node) null_node->next = zero_node;
+        }
+    }
 
     io_wait();
 
