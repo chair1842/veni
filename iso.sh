@@ -6,10 +6,10 @@ mkdir -p isodir
 mkdir -p isodir/boot
 mkdir -p isodir/boot/grub
 
-cp sysroot/boot/veni.kernel isodir/boot/veni.kernel
+cp sysroot/boot/vkernel isodir/boot/vkernel
 cat > isodir/boot/grub/grub.cfg << EOF
 menuentry "veni" {
-	multiboot /boot/veni.kernel
+	multiboot /boot/vkernel
 }
 EOF
 grub-mkrescue -o veni.iso isodir
