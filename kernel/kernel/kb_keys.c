@@ -28,7 +28,7 @@ static char keycode_to_ascii_caps[74] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-char key_to_ascii(struct KeyPacket pkt) {
+char key_to_ascii(KeyPacket_t pkt) {
     if (!pkt.pressed)
     return 0;
 

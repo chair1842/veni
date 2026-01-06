@@ -15,7 +15,8 @@ This document outlines the coding standards for the Veni hobby operating system 
 
 - **Variables and Functions**: `snake_case` (e.g., `vfs_create`, `alloc_fd`).
 - **Constants and Macros**: `ALL_CAPS` with underscores (e.g., `VFS_MAX_OPEN`, `ALIGN`).
-- **Structs**: `typedef struct name name_t;` (e.g., `vfs_file_t`). Members in `snake_case`.
+- **Structs**: `typedef struct name name_t;` (e.g., `vfs_file_t`). Members in `snake_case`, struct name in `PascalCase`.
+- **Enums**: 
 - **Files**: Match the main struct or module name (e.g., `vfs.h`/`vfs.c`).
 - **Globals**: Prefix with module name implicitly (e.g., `vfs_files`). Minimize globals.
 - **Headers**: Guards like `#ifndef _KERNEL_VFS_H` (underscore-separated, ALL_CAPS). Do not use `#pragma once` (bad experiences in this project).

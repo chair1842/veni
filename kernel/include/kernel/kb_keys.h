@@ -4,9 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef uint8_t KeyCode;
-
-enum {
+typedef enum KeyCode {
     KEY_NONE,
     KEY_A,
     KEY_B,
@@ -82,10 +80,10 @@ enum {
     KEY_F10,
     KEY_F11,
     KEY_F12,
-};
+} KeyCode_t;
 
-struct KeyPacket {
-    KeyCode keycode;
+typedef struct KeyPacket {
+    KeyCode_t keycode;
     bool pressed; // false if released
     bool shift;
     bool ctrl;
@@ -93,8 +91,8 @@ struct KeyPacket {
     bool capslock;
     bool scrolllock;
     bool numlock;
-};
+} KeyPacket_t;
 
-char key_to_ascii(struct KeyPacket pkt);
+char key_to_ascii(KeyPacket_t pkt);
 
 #endif

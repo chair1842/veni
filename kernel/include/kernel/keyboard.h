@@ -5,7 +5,7 @@
 #include <kernel/kb_keys.h>
 
 bool keyboard_available();
-struct KeyPacket keyboard_getkey(); // blocking
-struct KeyPacket keyboard_readkey(); // non-blocking
+KeyPacket_t keyboard_getkey(); // blocking
+KeyPacket_t keyboard_readkey(); // non-blocking
 
 #endif

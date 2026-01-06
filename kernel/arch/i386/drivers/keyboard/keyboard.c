@@ -5,13 +5,13 @@
 #define STATUS_PORT 0x64
 #define BUFFER_SIZE 128
 
-static struct KeyPacket buffer[BUFFER_SIZE];
+static KeyPacket_t buffer[BUFFER_SIZE];
 static int buffer_head = 0;
 static int buffer_tail = 0;
 
-void buffer_push(struct KeyPacket c);
+void buffer_push(KeyPacket_t c);
 bool buffer_empty();
-struct KeyPacket buffer_pop();
+KeyPacket_t buffer_pop();
 
 static bool shift = false;
 static bool ctrl = false;
@@ -21,7 +21,7 @@ static bool numlock = false;
 static bool scrolllock = false;
 
 // I'll move to keycode later :o
-static KeyCode set1_scancode_to_keycode[128] = {
+static KeyCode_t set1_scancode_to_keycode[128] = {
     0, 0, KEY_ONE, KEY_TWO, KEY_THREE, KEY_FOUR, KEY_FIVE,
     KEY_SIX, KEY_SEVEN, KEY_EIGHT, KEY_NINE, KEY_ZERO,
     KEY_MINUS, KEY_EQUAL, KEY_BACKSPACE, KEY_TAB, KEY_Q,
@@ -38,7 +38,7 @@ static KeyCode set1_scancode_to_keycode[128] = {
      0, 0, KEY_F11, KEY_F12
 };
 
-inline void buffer_push(struct KeyPacket pkt) {
+inline void buffer_push(KeyPacket_t pkt) {
     int next = (buffer_head + 1) % BUFFER_SIZE;
     if (next != buffer_tail) {
         buffer[buffer_head] = pkt;
@@ -50,8 +50,8 @@ inline bool buffer_empty() {
     return buffer_head == buffer_tail;
 }
 
-inline struct KeyPacket buffer_pop() {
-    struct KeyPacket pkt = {0};
+inline KeyPacket_t buffer_pop() {
+    KeyPacket_t pkt = {0};
     if (buffer_empty()) return pkt;
 
     io_wait();
@@ -71,7 +71,7 @@ void keyboard_handler() {
         if (code >= 128)
             continue;
 
-        KeyCode keycode = set1_scancode_to_keycode[code];
+        KeyCode_t keycode = set1_scancode_to_keycode[code];
         if (keycode == KEY_NONE)
             continue;
 
@@ -109,7 +109,7 @@ void keyboard_handler() {
         }
 
         // Emit KeyPacket
-        struct KeyPacket pkt = {
+        KeyPacket_t pkt = {
             .keycode = keycode,
             .pressed = !released,
             .shift = shift,
@@ -128,16 +128,16 @@ bool keyboard_available() {
     return !buffer_empty();
 }
 
-struct KeyPacket keyboard_getkey() {
+KeyPacket_t keyboard_getkey() {
     while (buffer_empty()) {
         io_wait();
     }
     return buffer_pop();
 }
 
-struct KeyPacket keyboard_readkey() {
+KeyPacket_t keyboard_readkey() {
     if (buffer_empty()) {
-        struct KeyPacket pkt = {0};
+        KeyPacket_t pkt = {0};
         return pkt; // No character available
     }
     return buffer_pop();
@@ -149,11 +149,11 @@ size_t kbd_read(vfs_filesystem_t *fs, void *data, void *buf, size_t size, size_t
     (void)data;
     (void)size;
 
-    if (size < sizeof(struct KeyPacket)) {
+    if (size < sizeof(KeyPacket_t)) {
         return 0; // or error later
     }
 
-    struct KeyPacket pkt = keyboard_getkey(); // BLOCKS
+    KeyPacket_t pkt = keyboard_getkey(); // BLOCKS
     memcpy(buf, &pkt, sizeof(pkt));
     return sizeof(pkt);
 }
