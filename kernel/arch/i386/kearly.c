@@ -96,6 +96,8 @@ void kearly() {
     dvcfs_regdvc("kbd", &kbd_ops, NULL);
     printf("Keyboard device registered in DVCFS.\n");
 
+    keyboard_flush(); // Clear any buffered keys
+
     // Create device nodes
     vfs_node_t *dev_root = vfs_resolve("/veni/dvcf");
     if (dev_root) {

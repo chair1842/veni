@@ -50,15 +50,17 @@ inline bool buffer_empty() {
     return buffer_head == buffer_tail;
 }
 
-inline KeyPacket_t buffer_pop() {
+KeyPacket_t buffer_pop() {
     KeyPacket_t pkt = {0};
     if (buffer_empty()) return pkt;
-
-    io_wait();
 
     pkt = buffer[buffer_tail];
     buffer_tail = (buffer_tail + 1) % BUFFER_SIZE;
     return pkt;
+}
+
+void keyboard_flush() {
+    buffer_head = buffer_tail = 0;
 }
 
 void keyboard_handler() {
