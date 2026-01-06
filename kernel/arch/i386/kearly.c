@@ -93,7 +93,7 @@ void kearly() {
     vfs_mount(&dvcfs_fs, "/veni/dvcf");
     printf("DVCFS mounted at /veni/dvcf.\n");
 
-    dvcfs_regdvc("kbd0", &kbd_ops, NULL);
+    dvcfs_regdvc("kbd", &kbd_ops, NULL);
     printf("Keyboard device registered in DVCFS.\n");
 
     // Create device nodes
