@@ -56,6 +56,23 @@ void kernel_main() {
         printf("Failed to open keyboard device\n");
     }
 
+    int timer = vfs_open("/veni/dvcf/timer");
+    if (timer >= 0) {
+        printf("Timer device opened with fd %d\n", timer);
+
+        uint32_t ticks = 0;
+
+        while (1) {
+            vfs_read(timer, &ticks, sizeof(ticks));
+            printf("Timer ticks: %d\n", ticks);
+            if (ticks >= 1000) { // Exit after 10 seconds
+                break;
+            }
+        }
+    } else {
+        printf("Failed to open timer device\n");
+    }
+
     printf("\n\nIt is done\n");
 
     while (1) {} // never return

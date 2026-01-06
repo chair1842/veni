@@ -9,6 +9,12 @@ static vfs_file_ops_t kbd_ops = {
     .close = kbd_close
 };
 
+static vfs_file_ops_t timer_ops = {
+    .read = timer_read,
+    .write = timer_write,
+    .close = timer_close
+};
+
 void kearly() {
     terminal_initialize();
     printf("Kernel early initialization started.\n");
@@ -29,8 +35,8 @@ void kearly() {
     printf("PIT initialized to 100Hz.\n");
 
     // Unmask IRQs
-    //irq_clear_mask(0); // PIT
-    //printf("PIT IRQ unmasked.\n");
+    irq_clear_mask(0); // PIT
+    printf("PIT IRQ unmasked.\n");
     irq_clear_mask(1); // Keyboard
     printf("Keyboard IRQ unmasked.\n");
     printf("IRQs unmasked.\n");
@@ -95,6 +101,9 @@ void kearly() {
 
     dvcfs_regdvc("kbd", &kbd_ops, NULL);
     printf("Keyboard device registered in DVCFS.\n");
+
+    dvcfs_regdvc("timer", &timer_ops, NULL);
+    printf("Timer device registered in DVCFS.\n");
 
     keyboard_flush(); // Clear any buffered keys
 
