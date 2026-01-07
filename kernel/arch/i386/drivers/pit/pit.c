@@ -6,7 +6,8 @@ static volatile uint32_t tick_count = 0;
 
 /* IRQ0 handler for the PIT */
 void pit_handler() {
-    tick_count++;
+    //tick_count++;
+    // do nothing for now
 }
 
 /* Initialize the PIT to a given frequency (Hz) */

@@ -2,4 +2,4 @@
 set -e
 . ./iso.sh
 
-qemu-system-$(./target-triplet-to-arch.sh $HOST) -cdrom veni.iso -serial stdio
+qemu-system-$(./target-triplet-to-arch.sh $HOST) -cdrom veni.iso -serial stdio -d int

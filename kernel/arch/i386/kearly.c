@@ -31,8 +31,8 @@ void kearly() {
     idt_init();
     printf("IDT initialized.\n");
 
-    pit_init(100); // Set PIT to 100Hz
-    printf("PIT initialized to 100Hz.\n");
+    pit_init(20); // Set PIT to 20Hz
+    printf("PIT initialized to 20Hz.\n");
 
     // Unmask IRQs
     irq_clear_mask(0); // PIT

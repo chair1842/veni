@@ -36,7 +36,8 @@ kernel/memory/heap.o \
 kernel/kb_keys.o \
 kernel/filesystem/vfs.o \
 kernel/filesystem/ramfs.o \
-kernel/filesystem/dvcfs.o
+kernel/filesystem/dvcfs.o \
+kernel/kpanic.o
 
 OBJS=\
 $(ARCHDIR)/crti.o \
